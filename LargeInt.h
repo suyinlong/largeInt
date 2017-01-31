@@ -7,7 +7,7 @@
 using namespace std;
 
 namespace rsa {
-	typedef unsigned long T_DWORD;
+	typedef uint32_t T_DWORD;
 
 	class CLargeInt	{
 	public:
@@ -38,10 +38,9 @@ namespace rsa {
 
 		~CLargeInt();
 	private:
-		enum LIMIT{ LENGTH = 0x3FF};
+		enum LIMIT{ LENGTH = 0x400 };
 		T_DWORD _len;
-		mutable T_DWORD _data[LENGTH];
-
+		mutable T_DWORD _data[LENGTH] = { 0 };
 
 	public:
 		void Print() const {

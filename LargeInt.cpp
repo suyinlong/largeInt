@@ -1,6 +1,4 @@
 #include "LargeInt.h"
-#include <memory.h>
-#include <algorithm>
 
 namespace rsa {
 	
@@ -13,58 +11,29 @@ namespace rsa {
 	}
 	
 	CLargeInt::CLargeInt(const char	* str):	_len(1) {
-		_data[0] = 0;
-		
-		if(str && strlen(str) >	2 && ( strncmp(str,"0x",2) == 0	|| strncmp(str,"0X",2) == 0 ) ) {
-			CLargeInt temp;
-			const char * p = str + 2;
-			while( *p ) {
-				char ch	= *p;
-				T_DWORD	n = 0;
-				switch(ch) {
-				case '0':case '1':case '2':	case '3':case '4':case '5':case	'6':case '7':case '8':case '9':
-					n = (ch	- '0');
-					break;
-				case 'A':case 'B':case 'C':case	'D':case 'E':case 'F':
-					n = (ch	- 'A' +	10);
-					break;
-				case 'a':case 'b':case 'c':case	'd':case 'e':case 'f':
-					n = (ch	- 'a' +	10);
-					break;
-				}
-				p++;
-				Mul(*this,16,temp);
-				Add(temp,n,*this);
-			}
-		}
-		else { //need to handle hex string without '0x' as prefix
-			__asm int 3;
-		}
+		Create(str);
 	}
 
 	void CLargeInt::Create(const char* str) {
 		_data[0] = 0;
-		
-		if(str && strlen(str) >	2 && ( strncmp(str,"0x",2) == 0	|| strncmp(str,"0X",2) == 0 ) ) {
-			CLargeInt temp;
-			const char * p = str + 2;
-			while( *p ) {
-				char ch	= *p;
-				T_DWORD	n = 0;
-				switch(ch) {
+		if (str && strlen(str) > 2 && (strncmp(str, "0x", 2) == 0 || strncmp(str, "0X", 2) == 0)) {
+			_len = (strlen(str) - 3) / 8 + 1;
+			
+			for (unsigned int i = 0; i < strlen(str) - 2; i++) {
+				char ch = str[strlen(str) - 1 - i];
+				T_DWORD n = 0;
+				switch (ch) {
 				case '0':case '1':case '2':	case '3':case '4':case '5':case	'6':case '7':case '8':case '9':
-					n = (ch	- '0');
+					n = (ch - '0');
 					break;
 				case 'A':case 'B':case 'C':case	'D':case 'E':case 'F':
-					n = (ch	- 'A' +	10);
+					n = (ch - 'A' + 10);
 					break;
 				case 'a':case 'b':case 'c':case	'd':case 'e':case 'f':
-					n = (ch	- 'a' +	10);
+					n = (ch - 'a' + 10);
 					break;
 				}
-				p++;
-				Mul(*this,16,temp);
-				Add(temp,n,*this);
+				_data[i / 8] |= (n << (i % 8 * 4));
 			}
 		}
 		else { //need to handle hex string without '0x' as prefix
@@ -81,7 +50,7 @@ namespace rsa {
 		// avoid self-copy
 		if( &source != &target ) {
 			target._len = source._len;
-			memcpy(target._data,source._data,source._len*4);
+			memcpy(target._data,source._data,source._len*sizeof(T_DWORD));
 		}
 	}
 	
@@ -943,6 +912,4 @@ labelend:
 		Mul(r,n,temp);
 		Div(temp,modulo,temp1,result);
 	}
-	
-
 }

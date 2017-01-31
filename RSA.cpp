@@ -19,22 +19,10 @@ int main(int argc, char* argv[]) {
 	for (unsigned int i = 0; i < m_source_string.size(); i++) {
 		int c = m_source_string[i] / 16;
 		int d = m_source_string[i] % 16;
-		if (c <= 9) {
-			char cc = '0' + c;
-			hex_string = hex_string + cc;
-		}
-		else {
-			char cc = 'A' + (c-10);
-			hex_string = hex_string + cc;
-		}
-		if (d <= 9) {
-			char dd = '0' + d;
-			hex_string = hex_string + dd;
-		}
-		else {
-			char dd = 'A' + (d-10);
-			hex_string = hex_string + dd;
-		}
+		char cc = c <= 9 ? '0' + c : 'A' + (c - 10);
+		char dd = d <= 9 ? '0' + d : 'A' + (d - 10);
+		hex_string += cc;
+		hex_string += dd;
 	}
 	M_Source.Create(hex_string.c_str());
 
