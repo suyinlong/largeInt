@@ -1,7 +1,10 @@
 #if !defined(LARGEINT_HEADER)
 #define LARGEINT_HEADER
 
-#include <vector>
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
 
 namespace rsa {
 	typedef unsigned long T_DWORD;
@@ -42,40 +45,36 @@ namespace rsa {
 
 	public:
 		void Print() const {
-			printf("0x");
-			for( int i = _len-1 ; i >= 0; i--) {
-				char str[] = "%08X";
-				str[2] = '0' + sizeof(T_DWORD) * 2;
-				if( i != (_len-1) )printf(str,_data[i]);
-				else printf("%X",_data[i]);
+			ios state(nullptr);
+
+			cout << "0x";
+			state.copyfmt(cout);
+
+			cout << hex << uppercase;
+			cout << _data[_len - 1];
+			cout << setw(sizeof(T_DWORD) * 2) << setfill('0');
+			for (int i = _len - 2; i >= 0; i--) {
+				cout << _data[i];
 			}
-			printf("\n");
+
+			cout.copyfmt(state);
+			cout << endl;
 		}
 		void PrintString() const {
-			for ( int i = _len-1 ;  i >= 0; i--) {
+			for (int i = _len-1 ;  i >= 0; i--) {
 				char str[] = "    ";
-				int c = _data[i];
-				int d = c & 0xFF;
-				if (d != 0)
-				{
-					str[3] = c & 0xFF;
+				int c = _data[i], d = 0;
+				for (int j = 3; j >= 0; j--) {
+					d = c & 0xFF;
+					str[j] = d;
+					c >>= 8;
 				}
-				c = c >> 8;
-				d = c & 0xFF;
-				if (d != 0)
-					str[2] = c & 0xFF;
-				c = c >> 8;
-				d = c & 0xFF;
-				if (d != 0)
-					str[1] = c & 0xFF;
-				c = c >> 8;
-				d = c & 0xFF;
-				if (d != 0)
-					str[0] = c & 0xFF;
-				printf("%s",str);
-
+				d = 0;
+				while (str[d] == 0 && d < 4)
+					d++;
+				cout << (str + d);
 			}
-			printf("\n");
+			cout << endl;
 		}
 	};
 }
